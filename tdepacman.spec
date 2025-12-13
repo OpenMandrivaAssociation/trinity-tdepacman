@@ -1,12 +1,11 @@
-#
-# Please submit bugfixes or comments via http://www.trinitydesktop.org/
-#
+%bcond clang 1
 
 # Default version for this component
 %define tde_pkg tdepacman
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
+%define pkg_rel 2
 
 # TDE specific building variables
 %define tde_prefix /opt/trinity
@@ -26,23 +25,20 @@
 
 %define _docdir %{tde_docdir}
 
-%if 0%{?mdkversion}
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
 %define _disable_rebuild_configure 1
-%endif
 
 # fixes error: Empty %files file …/debugsourcefiles.list
 %define _debugsource_template %{nil}
 
 %define tarball_name %{tde_pkg}-trinity
-%global toolchain %(readlink /usr/bin/cc)
 
 
 Name:			trinity-%{tde_pkg}
 Summary:		A pacman game for the Trinity Desktop
 Version:		0.3.2
-Release:		%{?tde_version}_%{?!preversion:1}%{?preversion:0_%{preversion}}%{?dist}
+Release:		%{?tde_version}_%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
 
 License:		GPLv2+
 Group:			Applications/Utilities
@@ -53,7 +49,18 @@ URL:			http://www.trinitydesktop.org/
 
 Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/games/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 
-BuildRequires:  cmake make
+BuildSystem:    cmake
+BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
+BuildOption:    -DCMAKE_SKIP_RPATH=OFF
+BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
+BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
+BuildOption:    -DCMAKE_INSTALL_PREFIX=%{tde_prefix}
+BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_datadir}
+BuildOption:    -DDATA_INSTALL_DIR=%{tde_datadir}/apps
+BuildOption:    -DLIB_INSTALL_DIR=%{tde_libdir}
+BuildOption:    -DBUILD_ALL=ON
+
 BuildRequires:	trinity-tqtinterface-devel >= %{tde_version}
 BuildRequires:	trinity-arts-devel >= 1:1.5.10
 BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
@@ -64,9 +71,9 @@ BuildRequires:	desktop-file-utils
 BuildRequires:	gettext
 
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
-%if "%{?toolchain}" != "clang"
-BuildRequires:	gcc-c++
-%endif
+
+%{!?with_clang:BuildRequires:	gcc-c++}
+
 BuildRequires:	pkgconfig
 BuildRequires:	libtool
 
@@ -83,49 +90,13 @@ splashed across magazine covers, television screens, T-shirts, and
 bumper stickers. Created by Japan's Namco, and distributed in the 
 United States by Bally, Pacman is an icon of 1980's popular culture
 
-%if 0%{?suse_version} || 0%{?pclinuxos}
-%debug_package
-%endif
 
-
-%prep
-%autosetup -n %{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}
-
-
-%build
+%conf -p
 unset QTDIR QTINC QTLIB
 export PATH="%{tde_bindir}:${PATH}"
 export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
 
-if ! rpm -E %%cmake|grep -e 'cd build\|cd ${CMAKE_BUILD_DIR:-build}'; then
-  %__mkdir_p build
-  cd build
-fi
-
-%cmake \
-  -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-  -DCMAKE_C_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_CXX_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_SKIP_RPATH=OFF \
-  -DCMAKE_SKIP_INSTALL_RPATH=OFF \
-  -DCMAKE_INSTALL_RPATH="%{tde_libdir}" \
-  -DCMAKE_VERBOSE_MAKEFILE=ON \
-  -DWITH_GCC_VISIBILITY=OFF \
-  \
-  -DCMAKE_INSTALL_PREFIX=%{tde_prefix} \
-  -DSHARE_INSTALL_PREFIX=%{tde_datadir} \
-  -DDATA_INSTALL_DIR=%{tde_datadir}/apps \
-  -DLIB_INSTALL_DIR=%{tde_libdir} \
-  -DBUILD_ALL=ON \
-  ..
-
-%__make %{?_smp_mflags}
-
-
-%install
-export PATH="%{tde_bindir}:${PATH}"
-%__make install DESTDIR=%{buildroot} -C build
-
+%install -a
 %find_lang %{tde_pkg}
 
 
