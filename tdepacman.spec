@@ -9,21 +9,7 @@
 
 # TDE specific building variables
 %define tde_prefix /opt/trinity
-%define tde_bindir %{tde_prefix}/bin
-%define tde_confdir %{_sysconfdir}/trinity
-%define tde_datadir %{tde_prefix}/share
-%define tde_docdir %{tde_datadir}/doc
-%define tde_includedir %{tde_prefix}/include
-%define tde_libdir %{tde_prefix}/%{_lib}
-%define tde_mandir %{tde_datadir}/man
-%define tde_appdir %{tde_datadir}/applications
 
-%define tde_tdeappdir %{tde_appdir}/tde
-%define tde_tdedocdir %{tde_docdir}/tde
-%define tde_tdeincludedir %{tde_includedir}/tde
-%define tde_tdelibdir %{tde_libdir}/trinity
-
-%define _docdir %{tde_docdir}
 
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
@@ -43,22 +29,17 @@ Release:		%{?tde_version}_%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion
 License:		GPLv2+
 Group:			Applications/Utilities
 
-Vendor:			Trinity Project
-Packager:		Francois Andriot <francois.andriot@free.fr>
+
 URL:			http://www.trinitydesktop.org/
 
 Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/games/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 
 BuildSystem:    cmake
+
 BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
-BuildOption:    -DCMAKE_SKIP_RPATH=OFF
-BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
-BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
 BuildOption:    -DCMAKE_INSTALL_PREFIX=%{tde_prefix}
-BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_datadir}
-BuildOption:    -DDATA_INSTALL_DIR=%{tde_datadir}/apps
-BuildOption:    -DLIB_INSTALL_DIR=%{tde_libdir}
+BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_prefix}/share
+BuildOption:    -DDATA_INSTALL_DIR=%{tde_prefix}/share/apps
 BuildOption:    -DBUILD_ALL=ON
 
 BuildRequires:	trinity-tqtinterface-devel >= %{tde_version}
@@ -93,8 +74,8 @@ United States by Bally, Pacman is an icon of 1980's popular culture
 
 %conf -p
 unset QTDIR QTINC QTLIB
-export PATH="%{tde_bindir}:${PATH}"
-export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
+export PATH="%{tde_prefix}/bin:${PATH}"
+export PKG_CONFIG_PATH="%{tde_prefix}/%{_lib}/pkgconfig"
 
 %install -a
 %find_lang %{tde_pkg}
@@ -103,16 +84,16 @@ export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
 %files -f %{tde_pkg}.lang
 %defattr(-,root,root,-)
 %doc AUTHORS ChangeLog COPYING README.md TODO
-%{tde_bindir}/tdepacman
-%{tde_tdeappdir}/tdepacman.desktop
-%{tde_datadir}/apps/tdepacman/
-%dir %{tde_datadir}/config
-%{tde_datadir}/config/tdepacmanrc
-%lang(de) %{tde_tdedocdir}/HTML/de/tdepacman/
-%{tde_tdedocdir}/HTML/en/tdepacman/
-%{tde_datadir}/icons/hicolor/16x16/apps/tdepacman.png
-%{tde_datadir}/icons/hicolor/32x32/apps/tdepacman.png
-%{tde_datadir}/icons/locolor/16x16/apps/tdepacman.png
-%{tde_datadir}/icons/locolor/32x32/apps/tdepacman.png
-%{tde_mandir}/man1/tdepacman.1*
+%{tde_prefix}/bin/tdepacman
+%{tde_prefix}/share/applications/tde/tdepacman.desktop
+%{tde_prefix}/share/apps/tdepacman/
+%dir %{tde_prefix}/share/config
+%{tde_prefix}/share/config/tdepacmanrc
+%lang(de) %{tde_prefix}/share/doc/tde/HTML/de/tdepacman/
+%{tde_prefix}/share/doc/tde/HTML/en/tdepacman/
+%{tde_prefix}/share/icons/hicolor/16x16/apps/tdepacman.png
+%{tde_prefix}/share/icons/hicolor/32x32/apps/tdepacman.png
+%{tde_prefix}/share/icons/locolor/16x16/apps/tdepacman.png
+%{tde_prefix}/share/icons/locolor/32x32/apps/tdepacman.png
+%{tde_prefix}/share/man/man1/tdepacman.1*
 
