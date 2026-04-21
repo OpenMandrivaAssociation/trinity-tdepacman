@@ -5,7 +5,6 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
-%define pkg_rel 2
 
 # TDE specific building variables
 %define tde_prefix /opt/trinity
@@ -24,7 +23,7 @@
 Name:			trinity-%{tde_pkg}
 Summary:		A pacman game for the Trinity Desktop
 Version:		0.3.2
-Release:		%{?tde_version}_%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
+Release:		%{?tde_version:%{tde_version}_}3
 
 License:		GPLv2+
 Group:			Applications/Utilities
@@ -32,7 +31,7 @@ Group:			Applications/Utilities
 
 URL:			http://www.trinitydesktop.org/
 
-Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/games/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
+Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/games/%{tarball_name}-%{tde_version}.tar.xz
 
 BuildSystem:    cmake
 
@@ -42,8 +41,8 @@ BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_prefix}/share
 BuildOption:    -DDATA_INSTALL_DIR=%{tde_prefix}/share/apps
 BuildOption:    -DBUILD_ALL=ON
 
-BuildRequires:	trinity-tqtinterface-devel >= %{tde_version}
-BuildRequires:	trinity-arts-devel >= 1:1.5.10
+BuildRequires:	pkgconfig(tqt)
+BuildRequires:	trinity-arts-devel >= 1.5.10
 BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
 BuildRequires:	trinity-tdebase-devel >= %{tde_version}
 BuildRequires:	trinity-tdegames-devel >= %{tde_version}
